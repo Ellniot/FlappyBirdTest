@@ -1,7 +1,9 @@
 package flap;
 
 public class Main {
-    public static void main(String[] args) {
+    
+    /*
+    private static void play(){
         Game g = new Game();
         
         //Init game objects
@@ -18,4 +20,11 @@ public class Main {
         //Start
         g.start();
     }
+    */
+    
+    public static void main(String[] args) {
+        Title t = new Title();
+        t.start();  
+    }
+    
 }

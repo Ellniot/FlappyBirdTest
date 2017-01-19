@@ -19,13 +19,14 @@ public class Bird implements Updateable, Renderable {
     
     private Pipes pipes;
     private int scoredPipe = 0;
-    
-    private int score = 0;
+    private int score = 0, highscore = 0;
     
     private Font gameFont = new Font("Arial", Font.BOLD, 30);
     
     private BufferedImage flapUp;
     private BufferedImage flapDown;
+    
+    private boolean isBirdDead = true;
     
     public Bird(Pipes pipes){
         resetBird();
@@ -43,15 +44,23 @@ public class Bird implements Updateable, Renderable {
         
     }
     
+    public boolean isDead(){
+        return !isBirdDead;
+    }
+    
     public void resetBird() {
+        isBirdDead = false;
         x = 100;
         y = 100;
         yVel = baseYVel = -6.0f;
+        score = 0;
     }
     
     private void flap() {
         yVel = baseYVel;
     }
+    
+    //getHighScore()
     
     @Override
     public void update(Input input) {
@@ -74,8 +83,10 @@ public class Bird implements Updateable, Renderable {
         //collision detection
         if((x >= pipeX && x <= pipeX + pipes.getPipeWidth() && (y <= pipeY || y >= pipeY + pipes.getPipeVerticalSpacing())) || y >= Game.HEIGHT){
             pipes.resetPipes();
-            resetBird();
-            score = 0;
+            isBirdDead = true;
+            //resetBird();
+            //score = 0;
+            
         }
         else{
             int currentPipeID = pipes.getCurrentPipeID();

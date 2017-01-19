@@ -13,7 +13,7 @@ public class Game
     public final static int WIDTH = 800, HEIGHT = 600;
     private String gameName = "Flappy Bird";
     
-    private Canvas game = new Canvas();
+    private Canvas game;// = new Canvas();
     
     private Input input;
     
@@ -34,24 +34,31 @@ public class Game
         renderables.remove(u);
     }
     
-    public void start(){
+    public void start(JFrame gameWindow, Canvas gameC, Bird b){
         //init window
         Dimension gameSize = new Dimension(Game.WIDTH, Game.HEIGHT);
+        game = gameC;
+        /*
         JFrame gameWindow = new JFrame(gameName);
         gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         gameWindow.setSize(gameSize);
         gameWindow.setResizable(false);
         gameWindow.setVisible(true);
+
         game.setSize(gameSize);
         game.setMaximumSize(gameSize);
         game.setMinimumSize(gameSize);
         game.setPreferredSize(gameSize);
         gameWindow.add(game);
         gameWindow.setLocationRelativeTo(null);
+        */
+        boolean running = true;
         
         //Init input
         input = new Input();
         game.addKeyListener(input);
+        
+        
         
         //game loop
         final int TICKS_PER_SECOND = 60; //max fps
@@ -65,13 +72,14 @@ public class Game
         long timeAtLastFPSCheck = 0;
         int ticks = 0;
         
-        boolean running = true;
+        
         while(running){
             //Updating
             loops = 0;
             
             while(System.currentTimeMillis() > nextGameTick && loops < MAX_FRAMESKIPS ){
                 update();
+                running = b.isDead();
                 ticks++;
                 
                 nextGameTick += TIME_PER_TICK;
@@ -90,6 +98,7 @@ public class Game
                 ticks = 0;
                 timeAtLastFPSCheck = System.currentTimeMillis();
             }
+            
         }
         //Game end
     }

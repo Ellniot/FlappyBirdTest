@@ -2,6 +2,11 @@ package flap;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import static java.lang.Math.PI;
 import java.util.Random;
 
 public class Pipes implements Updateable, Renderable {
@@ -9,6 +14,12 @@ public class Pipes implements Updateable, Renderable {
     private int pipeWidth = 100;
     private int pipeHorizontalSpacing = 210;
     private int pipeVerticalSpacing = 180; //change this to make game easier or harder
+    /*
+    PIPE SPACEING
+    0 = Easy    = 220
+    1 = Medium  = 180
+    2 = Hard    = 150
+    */
     
     private float xVel = -5.0f;
     private float x1, x2, x3;
@@ -20,9 +31,48 @@ public class Pipes implements Updateable, Renderable {
     private float[][] pipeCoordinates = new float[3][2];
     
     private Random rand;
+    private BufferedImage pipePic;
+    private BufferedImage bottomPipe;
+    private BufferedImage topPipe;
+    int pipePicWidth;
+    int pipePicHeight;
     
-    public Pipes(){
+    
+    
+    public Pipes(int difficultyInt){
         rand = new Random();
+        switch(difficultyInt){
+            case 0:
+                pipeVerticalSpacing = 220;
+                break;
+            case 1:
+                pipeVerticalSpacing = 180;
+                break;
+            case 2:
+                pipeVerticalSpacing = 150;
+                break;
+        }
+        try {
+            pipePic = Sprite.getSprite("Pipe.png");
+        } catch (IOException ex) {
+            System.err.println(ex.getMessage());
+            System.exit(1);
+        }
+        
+        //Scale the image
+        AffineTransform scaleTransform = new AffineTransform();
+        scaleTransform.scale(3.125, 3.125);
+        AffineTransformOp scaleOp = 
+                new AffineTransformOp(scaleTransform, AffineTransformOp.TYPE_BILINEAR);
+        bottomPipe = scaleOp.filter(pipePic, bottomPipe);
+        pipePicWidth = bottomPipe.getWidth();
+        pipePicHeight = bottomPipe.getHeight();
+        
+        //Flip the PipePic
+        AffineTransform flip = new AffineTransform();
+        flip.rotate(Math.PI, pipePicWidth/2, pipePicHeight/2);
+        AffineTransformOp op = new AffineTransformOp(flip, AffineTransformOp.TYPE_BILINEAR);
+        topPipe = op.filter(bottomPipe, null);
         
         resetPipes();
     }
@@ -42,8 +92,6 @@ public class Pipes implements Updateable, Renderable {
     private int getRandomY() {
         return rand.nextInt((int)(Game.HEIGHT * 0.4f) + (Game.HEIGHT / 10));
     }
-        
-
     
     @Override
     public void update(Input input) {
@@ -82,14 +130,26 @@ public class Pipes implements Updateable, Renderable {
                 pipeCoordinates[2][1] = y3;
                 break;
         }
-            
-               
-        }
+        
+    }
     
     @Override
     public void render(Graphics2D g, float interpolation) {
         g.setColor(Color.RED);
         
+        //Pipe1
+        g.drawImage(topPipe, (int)(x1 + (xVel * interpolation)), 0, pipeWidth, (int) y1, null);
+        g.drawImage(bottomPipe, (int)(x1 + (xVel * interpolation)), (int)(y1 + pipeVerticalSpacing), pipeWidth, Game.HEIGHT, null);
+        
+        //Pipe2
+        g.drawImage(topPipe, (int)(x2 + (xVel * interpolation)), 0, pipeWidth, (int) y2, null);
+        g.drawImage(bottomPipe, (int)(x2 + (xVel * interpolation)), (int)(y2 + pipeVerticalSpacing), pipeWidth, Game.HEIGHT, null);
+        
+        //Pipe3
+        g.drawImage(topPipe, (int)(x3 + (xVel * interpolation)), 0, pipeWidth, (int) y3, null);
+        g.drawImage(bottomPipe, (int)(x3 + (xVel * interpolation)), (int)(y3 + pipeVerticalSpacing), pipeWidth, Game.HEIGHT, null);
+        
+        /* RECTANGLES FOR PIPES
         //Pipe1
         g.fillRect((int)(x1 + (xVel * interpolation)), 0, pipeWidth, (int) y1);
         g.fillRect((int)(x1 + (xVel * interpolation)), (int)(y1 + pipeVerticalSpacing), pipeWidth, Game.HEIGHT);
@@ -101,6 +161,7 @@ public class Pipes implements Updateable, Renderable {
         //Pipe3
         g.fillRect((int)(x3 + (xVel * interpolation)), 0, pipeWidth, (int) y3);
         g.fillRect((int)(x3 + (xVel * interpolation)), (int)(y3 + pipeVerticalSpacing), pipeWidth, Game.HEIGHT);
+        */
     }
     
     public float[] getCurrentPipe() {
